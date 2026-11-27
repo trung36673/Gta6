@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a0418"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest"><title>NEON CITY – Lucia</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:none}
+html,body{margin:0;height:100%;background:#05010d;color:#fff;font-family:system-ui,Segoe UI,Roboto,sans-serif;overflow:hidden}
+canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
+#loading{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;justify-content:flex-end;padding:6vh 6vw;background:linear-gradient(180deg,#12012b 0%,#4a0a5e 45%,#ff2d87 78%,#ff9a3c 100%);overflow:hidden}
+#loading:before{content:"";position:absolute;left:0;right:0;bottom:0;height:40%;background:repeating-linear-gradient(90deg,#0a0418 0 28px,#150a2c 28px 40px,#0a0418 40px 70px,#1c0c3a 70px 84px);clip-path:polygon(0 60%,6% 40%,10% 55%,16% 20%,22% 45%,28% 30%,35% 50%,42% 10%,48% 40%,55% 25%,62% 52%,70% 18%,78% 45%,85% 30%,92% 55%,100% 35%,100% 100%,0 100%)}
+#loading .sun{position:absolute;left:50%;top:28%;width:34vmin;height:34vmin;transform:translateX(-50%);border-radius:50%;background:linear-gradient(#ffe36e,#ff3d8f);filter:blur(1px);opacity:.9}
+#loading h1{position:relative;margin:0;font-size:clamp(34px,9vw,92px);letter-spacing:.08em;font-weight:900;font-style:italic;text-shadow:0 0 18px #ff2d87,0 0 44px #00e5ff;line-height:1}
+#loading h2{position:relative;margin:.3em 0 1.2em;font-weight:500;letter-spacing:.4em;font-size:clamp(11px,2.2vw,18px);color:#8ff6ff}
+.barwrap{position:relative;height:10px;background:#ffffff22;border-radius:6px;overflow:hidden;max-width:720px}
+#bar{height:100%;width:0;background:linear-gradient(90deg,#00e5ff,#ff2d87);box-shadow:0 0 14px #ff2d87;transition:width .2s}
+#ltxt{position:relative;margin-top:10px;font-size:13px;opacity:.9;display:flex;justify-content:space-between;max-width:720px}
+#tip{position:relative;margin-top:14px;font-size:14px;color:#ffe6f3;min-height:2.6em;max-width:720px}
+#start{display:none;position:relative;margin-top:16px;align-self:flex-start;padding:14px 38px;font-size:20px;font-weight:800;letter-spacing:.15em;color:#fff;background:#ff2d87;border:0;border-radius:6px;box-shadow:0 0 24px #ff2d87;touch-action:manipulation}
+#hud{position:fixed;inset:0;z-index:10;pointer-events:none;display:none}
+.chip{position:absolute;padding:6px 12px;background:#0a0418bb;border:1px solid #ff2d8788;border-radius:8px;font-weight:700;text-shadow:0 0 8px #000}
+#mini{position:absolute;left:max(10px,env(safe-area-inset-left));top:10px;width:128px;height:128px;border-radius:50%;border:2px solid #00e5ff;box-shadow:0 0 14px #00e5ff88;background:#0a0418}
+#bars{position:absolute;left:max(150px,calc(env(safe-area-inset-left) + 150px));top:12px;width:190px}
+.bar{height:12px;margin-bottom:5px;background:#0008;border:1px solid #fff4;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;width:100%}
+#hpb{background:linear-gradient(90deg,#ff2d55,#ff7a5c)}#arb{background:linear-gradient(90deg,#00b7ff,#00ffd5)}
+#cash{left:max(150px,calc(env(safe-area-inset-left) + 150px));top:52px;color:#7dff9a;font-size:20px}
+#stars{right:max(70px,calc(env(safe-area-inset-right) + 70px));top:10px;color:#ffd23c;font-size:22px;letter-spacing:3px}
+#wslot{position:absolute;right:max(14px,env(safe-area-inset-right));top:56px;width:112px;padding:8px 10px;background:#0a0418cc;border:1px solid #00e5ff;border-radius:10px;text-align:center;font-size:13px}
+#wslot b{font-size:22px;display:block;color:#00e5ff}
+#prompt{position:absolute;left:50%;bottom:30%;transform:translateX(-50%);padding:8px 16px;background:#000a;border:1px solid #ff2d87;border-radius:20px;font-weight:700;display:none}
+#cross{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px;border:2px solid #ffffffcc;border-radius:50%;opacity:0;transition:opacity .15s}
+#cross:after{content:"";position:absolute;left:11px;top:11px;width:4px;height:4px;background:#ff2d87;border-radius:50%}
+#msg{position:absolute;left:50%;top:22%;transform:translateX(-50%);font-size:clamp(18px,3vw,30px);font-weight:800;text-shadow:0 0 12px #ff2d87;display:none;text-align:center}
+.btn{position:absolute;pointer-events:auto;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#14082acc;border:2px solid #ff2d87;color:#fff;font-weight:800;font-size:12px;text-align:center;box-shadow:0 0 14px #ff2d8777;touch-action:none}
+.btn:active,.btn.on{background:#ff2d87;box-shadow:0 0 24px #ff2d87}
+.btn svg{width:56%;height:56%;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#bFire{right:max(26px,env(safe-area-inset-right));bottom:30px;width:92px;height:92px;border-color:#ff2d55}
+#bAim{right:calc(max(26px,env(safe-area-inset-right)) + 104px);bottom:24px;width:68px;height:68px;border-color:#00e5ff}
+#bJump{right:calc(max(26px,env(safe-area-inset-right)) + 8px);bottom:136px;width:64px;height:64px}
+#bUse{right:calc(max(26px,env(safe-area-inset-right)) + 82px);bottom:106px;width:64px;height:64px;border-color:#7dff9a}
+#bWeap{right:calc(max(26px,env(safe-area-inset-right)) + 160px);bottom:100px;width:64px;height:64px;border-color:#ffd23c}
+#bRel{right:calc(max(26px,env(safe-area-inset-right)) + 190px);bottom:20px;width:54px;height:54px}
+#bRun{left:max(24px,env(safe-area-inset-left));bottom:200px;width:56px;height:56px}
+#bMap,#bGfx,#bMute{top:10px;width:44px;height:44px}
+#bMap{right:max(10px,env(safe-area-inset-right))}#bMute{right:calc(max(10px,env(safe-area-inset-right)) + 112px);top:104px;width:38px;height:38px}#bGfx{right:calc(max(10px,env(safe-area-inset-right)) + 0px);top:104px;width:38px;height:38px}
+#joy{position:absolute;left:max(24px,env(safe-area-inset-left));bottom:30px;width:150px;height:150px;border-radius:50%;background:#14082a88;border:2px solid #00e5ff88;pointer-events:auto}
+#stick{position:absolute;left:50px;top:50px;width:50px;height:50px;border-radius:50%;background:#00e5ffcc;box-shadow:0 0 16px #00e5ff}
+#look{position:absolute;right:0;top:0;width:55%;height:100%;pointer-events:auto}
+#bigmap{position:fixed;inset:0;z-index:30;background:#05010dee;display:none;align-items:center;justify-content:center}
+#bigmap canvas{width:min(92vw,92vh);height:min(92vw,92vh);border:2px solid #00e5ff;border-radius:12px}
+#bigmap .x{position:absolute;right:20px;top:14px;font-size:30px}
+#wasted{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;flex-direction:column;background:#300a;font-size:clamp(40px,12vw,120px);font-weight:900;color:#ff2d55;text-shadow:0 0 30px #000;letter-spacing:.1em}
+#wasted small{font-size:18px;color:#fff;letter-spacing:.1em}
+#help{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);font-size:11px;opacity:.7;text-align:center;display:none}
+@media (pointer:fine){#joy,#bJump,#bRun,#look{display:none}#help{display:block}.btn{opacity:.85}}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="loading"><div class="sun"></div><h1>NEON CITY</h1><h2>LUCIA · NIGHT RUN</h2>
+<div class="barwrap"><div id="bar"></div></div><div id="ltxt"><span id="lstat">Đang khởi động…</span><span id="pct">0%</span></div><div id="tip"></div>
+<button id="start">BẮT ĐẦU</button></div>
+<div id="hud">
+ <canvas id="mini" width="256" height="256"></canvas>
+ <div id="bars"><div class="bar"><i id="hpb"></i></div><div class="bar"><i id="arb" style="width:0"></i></div></div>
+ <div class="chip" id="cash">$0</div><div class="chip" id="stars"></div>
+ <div id="wslot"><span id="wname">TAY KHÔNG</span><b id="ammo">—</b></div>
+ <div id="cross"></div><div id="prompt"></div><div id="msg"></div>
+ <div id="help">WASD đi · Chuột: nhìn/bắn · Chuột phải: ngắm · Shift chạy · Space nhảy · E nhặt/cướp · Q rút/cất súng · R nạp · G thả súng · M bản đồ</div>
+ <div id="look"></div><div id="joy"><div id="stick"></div></div>
+ <div class="btn" id="bRun">CHẠY</div>
+ <div class="btn" id="bFire"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5"/></svg></div>
+ <div class="btn" id="bAim"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></div>
+ <div class="btn" id="bJump"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></div>
+ <div class="btn" id="bUse"><svg viewBox="0 0 24 24"><path d="M9 11V5a2 2 0 014 0v5m0 0V8a2 2 0 014 0v4m0 0v-1a2 2 0 014 0v5a6 6 0 01-6 6h-2a6 6 0 01-5-3l-3-5a2 2 0 013-2l2 2"/></svg></div>
+ <div class="btn" id="bWeap"><svg viewBox="0 0 24 24"><path d="M2 8h14l2-2h4v5h-5l-1 4h-4l-1-4H8l-1 3H4z"/></svg></div>
+ <div class="btn" id="bRel"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 10-3 6M20 4v6h-6"/></svg></div>
+ <div class="btn" id="bMap"><svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/></svg></div>
+ <div class="btn" id="bGfx">GFX</div><div class="btn" id="bMute">♪</div>
+</div>
+<div id="bigmap"><span class="x btn" id="mapClose" style="position:absolute;width:44px;height:44px;pointer-events:auto">✕</span><canvas id="bm" width="800" height="800"></canvas></div>
+<div id="wasted">WASTED<small id="wsub">Đang hồi sinh…</small></div>
+<script type="module" src="js/game.js"></script>
+<script>if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
+</body></html>
